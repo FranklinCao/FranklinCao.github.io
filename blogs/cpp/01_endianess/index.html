@@ -1,0 +1,1235 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.34">
+    
+    
+      
+        <title>发送二进制数据时的 “大小端” 问题 - Franklin Cao 的个人博客</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.35f28582.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Franklin Cao 的个人博客" class="md-header__button md-logo" aria-label="Franklin Cao 的个人博客" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Franklin Cao 的个人博客
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              发送二进制数据时的 “大小端” 问题
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  博客
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Franklin Cao 的个人博客" class="md-nav__button md-logo" aria-label="Franklin Cao 的个人博客" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Franklin Cao 的个人博客
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    博客
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            博客
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_1" id="__nav_1_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    C++
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            C++
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    发送二进制数据时的 “大小端” 问题
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    发送二进制数据时的 “大小端” 问题
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      引言
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      什么是大小端
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      大小端转换的手动实现
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      大小端转换的第三方库实现
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      引言
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      什么是大小端
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      大小端转换的手动实现
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      大小端转换的第三方库实现
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="_1">发送二进制数据时的 “大小端” 问题</h1>
+<h2 id="_2">引言</h2>
+<p>计算机系统间通信时常常需要拟定通信协议，作为通信双方共同遵守的规则。协议中常常需要传递<strong>数字</strong>类型的信息，例如温度传感器上报当前温度（一个有符号的<strong>小数</strong>），设置工作模式（可能是一个无符号<strong>整数</strong>）等等。</p>
+<p>发送数字信息，直接发送内存中的二进制表示是最直接的方式。这种方式速度快、占用带宽低，无需对数据做额外编码或解析。然而不同系统中对于同样一段内存的解释可能是不同的，所以虽然这种方式效率很高，但也带来了一个至关重要的问题：<strong>大小端序（endianness）</strong>。</p>
+<p>大小端问题本质上是不同计算机体系结构在存储多字节数据时的顺序差异。这种差异会导致发送端和接收端对相同的数据字节有不同的解释，从而导致数据解析出错。因此跨平台通信时，必须正确处理大小端问题，才能确保数据的准确传输和解析。</p>
+<p>在本文中，我们将深入探讨大小端问题的本质，分析它对二进制数据传输协议的具体影响，并介绍如何在实际应用中通过合适的技术手段正确处理和转换字节序。</p>
+<h2 id="_3">什么是大小端</h2>
+<p>在二进制数据传输或存储中，数据的字节顺序决定了系统如何理解和解释多字节的数据值。解释字节的顺序可以分为<strong>大端序（Big Endian）</strong>和<strong>小端序（Little Endian）</strong>两种。</p>
+<p>在大端序的系统中，高位字节（也就是权重高的字节）存储在内存的低地址，低位字节（也就是权重低的字节）存储在内存的高地址。大端序的排列方式类似于人们书写数字的顺序，即从左到右依次存储，比较符合人类的直觉。</p>
+<p>数值 <code>BE BA FE CA</code>（十六进制）在大端序中会按如下方式存储：</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1">地址：  01 02 03 04
+</span><span id="__span-0-2">内容：  BE BA FE CA
+</span></code></pre></div></td></tr></table></div>
+<p>与大端序相反，小端序系统将低位字节存储在内存的低地址，而高位字节存储在内存的高地址。即从右到左的方式排列。</p>
+<p>数值 <code>BE BA FE CA</code>（十六进制）在小端序中会按如下方式存储：</p>
+<p><div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1">地址：  01 02 03 04
+</span><span id="__span-1-2">内容：  CA FE BA BE
+</span></code></pre></div></td></tr></table></div>
+<img alt="alt text" src="../01_endian_01.jpg" /></p>
+<p>所以如果发送端为大端系统，发送的数字为 <code>BE BA FE CA</code>，在不考虑大小端问题的情况下直接将内存中的四个字节发出。小端系统收到后，同样不考虑大小端问题，直接解析，就会认为第一个字节 <code>0xBE</code> 的权重最低，认为最后一个字节 <code>0xCA</code> 权重最高（尽管这完全不是发送方的本意），从而将这个数字解释为 <code>CA FE BA BE</code>。</p>
+<p>解决大小端问题最直接有效的方法就是统一字节序。可以认为地规定传输协议中所有数字均为大端序。在许多网络协议中，统一字节序的选择往往是<strong>大端序（Big Endian）</strong>，并被称为<strong>网络字节序（Network Byte Order）</strong>。使用大端序作为标准的原因之一是大端序的字节排列方式与人们书写数字的方式一致，相对直观且易于理解。</p>
+<p>例如，在 TCP/IP 协议中无论是在数据报头中表示 IP 地址、端口号，还是传输协议中的其他数值字段，所有数据都按照大端序排列。该标准确保了数据在不同系统之间的兼容性与可移植性。</p>
+<p><strong>然而</strong>，几乎所有的计算机和嵌入式设备都采用小端序，只有网络字节序仍然采用大端序。</p>
+<p><img alt="alt text" src="6hb8toowd2wc1.jpeg" /></p>
+<h2 id="_4">大小端转换的手动实现</h2>
+<p>下面通过位运算完成几个常见数据类型的大小端转换</p>
+<p><strong>uint8_t 类型</strong></p>
+<p><code class="language-cpp highlight"><span class="kt">uint8_t</span></code> 是单字节类型，不存在字节序的问题，因此无需转换。</p>
+<p><strong>uint16_t 类型</strong></p>
+<p><code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 占用 2 个字节，只需将第 1 个字节取出后右移 8 位，再将第 2 个字节取出左移 8 位，最后将两者通过或运算拼起来即可。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><span class="kt">uint16_t</span><span class="w"> </span><span class="nf">SwapUint16T</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-2-2"><span class="p">{</span>
+</span><span id="__span-2-3"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xff00</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x00ff</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+</span><span id="__span-2-4"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>uint32_t 类型</strong></p>
+<p><code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 占用 4 个字节，和 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 类型相似，但是分别要分别取出第 1、2、3、4 个字节，然后通过左移或右移将字节调换到与其原位置对称的位置，最后将所有调整好位置的字节通过或运算拼起来即可。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">SwapUint32T</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-3-2"><span class="p">{</span>
+</span><span id="__span-3-3"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xff000000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x00ff0000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span>
+</span><span id="__span-3-4"><span class="w">           </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x0000ff00</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x000000ff</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">);</span>
+</span><span id="__span-3-5"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>uint64_t 类型</strong></p>
+<p><code class="language-cpp highlight"><span class="kt">uint64_t</span></code> 通常占用 8 个字节，和 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 类型相似，依然是取出各个字节，调整位置后拼起来，只是共需要取出 8 次，稍显繁复。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><span class="kt">uint64_t</span><span class="w"> </span><span class="nf">SwapUint64T</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-4-2"><span class="p">{</span>
+</span><span id="__span-4-3"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xff00000000000000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">56</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x00ff000000000000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="o">|</span>
+</span><span id="__span-4-4"><span class="w">           </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x0000ff0000000000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x000000ff00000000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w">  </span><span class="o">|</span>
+</span><span id="__span-4-5"><span class="w">           </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x00000000ff000000</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x0000000000ff0000</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span><span class="w"> </span><span class="o">|</span>
+</span><span id="__span-4-6"><span class="w">           </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x000000000000ff00</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x00000000000000ff</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">56</span><span class="p">);</span>
+</span><span id="__span-4-7"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>float 类型</strong></p>
+<p><code class="language-cpp highlight"><span class="kt">float</span></code> 类型<strong>通常</strong>占用 4 个字节，但是由于 <code class="language-cpp highlight"><span class="kt">float</span></code> 类型无法直接进行与运算，也不能左移或右移，但是这里处理的是字节数据，所以可以将 float 内存复制到同样占用 4 个字节的 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 的方法进行字节调换，最后再将调换完成的 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 类型重新复制到 <code class="language-cpp highlight"><span class="kt">float</span></code> 数据中返回即可。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><span class="kt">float</span><span class="w"> </span><span class="nf">SwapFloat</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-5-2"><span class="p">{</span>
+</span><span id="__span-5-3"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">originBit</span><span class="p">{};</span>
+</span><span id="__span-5-4"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">originBit</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+</span><span id="__span-5-5"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">swappedBit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwapUint32T</span><span class="p">(</span><span class="n">originBit</span><span class="p">);</span>
+</span><span id="__span-5-6">
+</span><span id="__span-5-7"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">ret</span><span class="p">{};</span>
+</span><span id="__span-5-8"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">swappedBit</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+</span><span id="__span-5-9"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+</span><span id="__span-5-10"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>double 类型</strong></p>
+<p><code class="language-cpp highlight"><span class="kt">double</span></code> 类型<strong>通常</strong> 8 个字节，和 <code class="language-cpp highlight"><span class="kt">float</span></code> 类型一样，也无法进行与和左右移运算，这里可以将 <code class="language-cpp highlight"><span class="kt">double</span></code> 所持有的内存复制到同样占用 8 个字节的 <code class="language-cpp highlight"><span class="kt">uint64_t</span></code> ，并按照 <code class="language-cpp highlight"><span class="kt">uint64_t</span></code> 处理，最后再重新复制到 <code class="language-cpp highlight"><span class="kt">double</span></code> 中返回即可。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><span class="kt">double</span><span class="w"> </span><span class="nf">SwapDouble</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-6-2"><span class="p">{</span>
+</span><span id="__span-6-3"><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">originBit</span><span class="p">{};</span>
+</span><span id="__span-6-4"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">originBit</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+</span><span id="__span-6-5"><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">swappedBit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwapUint64T</span><span class="p">(</span><span class="n">originBit</span><span class="p">);</span>
+</span><span id="__span-6-6">
+</span><span id="__span-6-7"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">ret</span><span class="p">{};</span>
+</span><span id="__span-6-8"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">swappedBit</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+</span><span id="__span-6-9"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+</span><span id="__span-6-10"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>下面编写一个函数用来测试 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 的大小端转换函数：</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><span class="kt">void</span><span class="w"> </span><span class="nf">TestShort</span><span class="p">()</span>
+</span><span id="__span-7-2"><span class="p">{</span>
+</span><span id="__span-7-3"><span class="hll"><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x1234</span><span class="p">;</span>
+</span></span><span id="__span-7-4"><span class="hll"><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">swapped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwapUint16T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span></span><span id="__span-7-5">
+</span><span id="__span-7-6"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;origin:  &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">hex</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">showbase</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span id="__span-7-7"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;swapped: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">hex</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">showbase</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">swapped</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span id="__span-7-8"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>输出：
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><span class="nl">origin</span><span class="p">:</span><span class="w">  </span><span class="mh">0x1234</span>
+</span><span id="__span-8-2"><span class="nl">swapped</span><span class="p">:</span><span class="w"> </span><span class="mh">0x3412</span>
+</span></code></pre></div></td></tr></table></div></p>
+<p>这里选择使用的是人畜无害的无符号类型 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 传入测试，被测试的函数 <code>SwapUint16T</code> 接受和返回的参数也都是无符号类型。</p>
+<p>但是如果改传入有符号类型 <code class="language-cpp highlight"><span class="kt">int16_t</span></code> 呢，会有隐式类型转换问题吗。</p>
+<p>是的，的确会发生 <code class="language-cpp highlight"><span class="kt">int16_t</span></code> 向 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 的隐式类型转换，但很幸运不会有问题。</p>
+<p>如果 <code class="language-cpp highlight"><span class="kt">int16_t</span></code> 类型的值为正数，那么相安无事，如果 <code class="language-cpp highlight"><span class="kt">int16_t</span></code> 类型的值为负数，根据类型转换规则，目标类型是无符号整数时，源整数会被转换为目标类型所能表示的最小的无符号整数。转换的规则是将源整数对 2^n （n 为该类型所占的位数）取模。</p>
+<p>但是，<strong>无论是以上两种中的哪种情况，都只是对于字节的内容的重新解释，从字节的角度看不会发生改变，因此不会影响字节级别的位置调换操作</strong>。</p>
+<p>C++ 标准草案中，也同样表述了有符号数向无符号数的转换规则，以及如果不发生截断，转换仅发生在语义层面，而不会改变二进制位层面的内容。</p>
+<div class="admonition quote">
+<p class="admonition-title">C++17 - N4713 - 7.8 Integral conversions</p>
+<p>If the destination type is unsigned, the resulting value is the least unsigned integer congruent to the source
+integer (modulo 2^n where n is the number of bits used to represent the unsigned type). [ Note: In a two’s
+complement representation, this conversion is conceptual and there is no change in the bit pattern (if there is
+no truncation). — end note ]</p>
+</div>
+<p><strong>但是如果反过来传递呢</strong>，如果 SwapUint16T 接受的是 <code class="language-cpp highlight"><span class="kt">int16_t</span></code>，但是将 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 类型的数字传入，会发生隐式类型转换吗？</p>
+<p>是的，会发生由 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 向 <code class="language-cpp highlight"><span class="kt">int16_t</span></code> 的隐式类型转换，但是就没有刚才那么幸运了。</p>
+<div class="admonition danger">
+<p class="admonition-title">无符号类型向有符号类型的隐式转换是实现定义行为</p>
+<p>一旦 <code class="language-cpp highlight"><span class="kt">uint16_t</span></code> 所表示的内容超出了 <code class="language-cpp highlight"><span class="kt">int16_t</span></code> 表示的范围（很可能发生），这种转换将是<strong>实现定义行为</strong>，也就是依赖于编译器的具体实现，不同编译器可能有不同的处理方式。可能是报错，可能是警告，可能是你不知道的其他结果。程序设计时应该竭尽全力避免这些不确定的行为。</p>
+</div>
+<p>C++ 17 标准草案中中也提到，这是实现定义的。</p>
+<div class="admonition quote">
+<p class="admonition-title">C++17 - N4713 - 7.8 Integral conversions</p>
+<p>If the destination type is signed, the value is unchanged if it can be represented in the destination type; otherwise, the value is implementation-defined.</p>
+</div>
+<p><strong>所以如果要做位操作，尽可能统一使用无符号类型操作。</strong></p>
+<p>此前，将 <code class="language-cpp highlight"><span class="kt">float</span></code> 数据按照 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 数据处理前有一步预处理操作：将 <code class="language-cpp highlight"><span class="kt">float</span></code> 数据中的内存逐个字节拷贝到了另一个 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 数据中。返回时，再将调整好字节顺序的 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 数据重新拷贝到 <code class="language-cpp highlight"><span class="kt">float</span></code> 数据中用于返回。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><span class="kt">float</span><span class="w"> </span><span class="nf">SwapFloat</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-9-2"><span class="p">{</span>
+</span><span id="__span-9-3"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">originBit</span><span class="p">{};</span>
+</span><span id="__span-9-4"><span class="hll"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">originBit</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+</span></span><span id="__span-9-5"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">swappedBit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwapUint32T</span><span class="p">(</span><span class="n">originBit</span><span class="p">);</span>
+</span><span id="__span-9-6">
+</span><span id="__span-9-7"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">ret</span><span class="p">{};</span>
+</span><span id="__span-9-8"><span class="hll"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">swappedBit</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+</span></span><span id="__span-9-9"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+</span><span id="__span-9-10"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>这样内存搬移是否有必要，有人提出一种更为简洁的方法：</p>
+<p>可以直接将传入的参数的地址强转为 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 类型的指针，然后解引用。相当于将 <code class="language-cpp highlight"><span class="n">value</span></code> 中所占的内存按照 <code class="language-cpp highlight"><span class="kt">uint32_t</span></code> 方式重新解释。返回时用相似的方法再将其所占的内存重新解释为 <code class="language-cpp highlight"><span class="kt">float</span></code> 数据并返回。（使用 C++ 风格的 <code class="language-cpp highlight"><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span></code> 也是相同的含义）。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><span class="kt">float</span><span class="w"> </span><span class="nf">SwapFloat</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-10-2"><span class="p">{</span>
+</span><span id="__span-10-3"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">swappedBit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwapUint32T</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
+</span><span id="__span-10-4"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">swappedBit</span><span class="p">;</span>
+</span><span id="__span-10-5"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>这种方式使用了<strong>类型双关 (Type Punning)</strong>，意在通过重新解释数据的内存表示，将数据从一种类型视为另一种类型。然而，此处的使用方式会违反<strong>严格别名规则 (Strict Aliasing Rule)</strong>。</p>
+<div class="admonition note">
+<p class="admonition-title">严格别名规则 (Strict Aliasing Rule)</p>
+<p>该规则会帮助编译器优化程序，其假设不同类型的指针不会指向相同的内存地址（即不同类型的别名不能指向相同的对象）。如果打破了这个假设，编译器可能会生成不符合预期的代码，虽然有时会产生符合预期的结果，但是记住，不要把赌注押在未定义行为上。</p>
+<p>严格别名规则中有一种<strong>例外情况</strong>，就是 <code class="language-cpp highlight"><span class="kt">char</span><span class="o">*</span><span class="err">、</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="err">、</span><span class="kt">signed</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span></code>，C++标准允许通过这些指针访问任何对象的原始字节序列。这是因为C++标准中的字节操作正是通过这三种类型定义的。例如以下操作是完全合法的。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-11-2"><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">i</span><span class="p">;</span><span class="w"> </span>
+</span><span id="__span-11-3"><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<p>除了使用 <code class="language-cpp highlight"><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span></code>，C++20 在 <code class="language-cpp highlight"><span class="o">&lt;</span><span class="n">bit</span><span class="o">&gt;</span></code> 头文件中还引入了 <code class="language-cpp highlight"><span class="n">std</span><span class="o">::</span><span class="n">bit_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span></code> 模板函数，专门用于处理这类将一种类型的数据重新解释为另一种类型的问题：</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><span class="kt">float</span><span class="w"> </span><span class="nf">SwapFloat</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-12-2"><span class="p">{</span>
+</span><span id="__span-12-3"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">originBit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">bit_cast</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span id="__span-12-4"><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">swappedBit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwapUint32T</span><span class="p">(</span><span class="n">originBit</span><span class="p">);</span>
+</span><span id="__span-12-5"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">bit_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">swappedBit</span><span class="p">);</span>
+</span><span id="__span-12-6"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="_5">大小端转换的第三方库实现</h2>
+<p>在此选择一个简 (wǒ) 洁 (néng) 明 (kàn) 了 (dǒng) 的第三方大小端转换库 <a href="https://github.com/r-lyeh-archived/giant/tree/master">Giant</a>，来学习别人的实现方式。</p>
+<p>首先该库探查了一系列宏定义用于推测系统字节序。这些宏有的直接指名大小端类型，有的代表的是系统架构。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><span class="cp">#if defined(_LITTLE_ENDIAN) || (defined(BYTE_ORDER) &amp;&amp; defined(LITTLE_ENDIAN) &amp;&amp; BYTE_ORDER == LITTLE_ENDIAN) ||       \</span>
+</span><span id="__span-13-2"><span class="cp">    (defined(_BYTE_ORDER) &amp;&amp; defined(_LITTLE_ENDIAN) &amp;&amp; _BYTE_ORDER == _LITTLE_ENDIAN) ||                              \</span>
+</span><span id="__span-13-3"><span class="cp">    (defined(__BYTE_ORDER) &amp;&amp; defined(__LITTLE_ENDIAN) &amp;&amp; __BYTE_ORDER == __LITTLE_ENDIAN) || defined(__i386__) ||     \</span>
+</span><span id="__span-13-4"><span class="cp">    defined(__alpha__) || defined(__ia64) || defined(__ia64__) || defined(_M_IX86) || defined(_M_IA64) ||              \</span>
+</span><span id="__span-13-5"><span class="cp">    defined(_M_ALPHA) || defined(__amd64) || defined(__amd64__) || defined(_M_AMD64) || defined(__x86_64) ||           \</span>
+</span><span id="__span-13-6"><span class="cp">    defined(__x86_64__) || defined(_M_X64)</span>
+</span><span id="__span-13-7"><span class="k">enum</span>
+</span><span id="__span-13-8"><span class="p">{</span>
+</span><span id="__span-13-9"><span class="w">    </span><span class="n">xinu_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-13-10"><span class="w">    </span><span class="n">unix_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-13-11"><span class="w">    </span><span class="n">nuxi_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-13-12"><span class="w">    </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xinu_type</span><span class="p">,</span>
+</span><span id="__span-13-13"><span class="w">    </span><span class="n">is_little</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-13-14"><span class="w">    </span><span class="n">is_big</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-13-15"><span class="p">};</span>
+</span><span id="__span-13-16"><span class="cp">#elif defined(_BIG_ENDIAN) || (defined(BYTE_ORDER) &amp;&amp; defined(BIG_ENDIAN) &amp;&amp; BYTE_ORDER == BIG_ENDIAN) ||              \</span>
+</span><span id="__span-13-17"><span class="cp">    (defined(_BYTE_ORDER) &amp;&amp; defined(_BIG_ENDIAN) &amp;&amp; _BYTE_ORDER == _BIG_ENDIAN) ||                                    \</span>
+</span><span id="__span-13-18"><span class="cp">    (defined(__BYTE_ORDER) &amp;&amp; defined(__BIG_ENDIAN) &amp;&amp; __BYTE_ORDER == __BIG_ENDIAN) || defined(__sparc) ||            \</span>
+</span><span id="__span-13-19"><span class="cp">    defined(__sparc__) || defined(_POWER) || defined(__powerpc__) || defined(__ppc__) || defined(__hpux) ||            \</span>
+</span><span id="__span-13-20"><span class="cp">    defined(_MIPSEB) || defined(_POWER) || defined(__s390__)</span>
+</span><span id="__span-13-21"><span class="k">enum</span>
+</span><span id="__span-13-22"><span class="p">{</span>
+</span><span id="__span-13-23"><span class="w">    </span><span class="n">xinu_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-13-24"><span class="w">    </span><span class="n">unix_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-13-25"><span class="w">    </span><span class="n">nuxi_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-13-26"><span class="w">    </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unix_type</span><span class="p">,</span>
+</span><span id="__span-13-27"><span class="w">    </span><span class="n">is_little</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-13-28"><span class="w">    </span><span class="n">is_big</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-13-29"><span class="p">};</span>
+</span><span id="__span-13-30"><span class="cp">#else</span>
+</span><span id="__span-13-31"><span class="cp">#error &lt;giant/giant.hpp&gt; says: Middle endian/NUXI order is not supported</span>
+</span><span id="__span-13-32"><span class="k">enum</span>
+</span><span id="__span-13-33"><span class="p">{</span>
+</span><span id="__span-13-34"><span class="w">    </span><span class="n">xinu_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-13-35"><span class="w">    </span><span class="n">unix_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-13-36"><span class="w">    </span><span class="n">nuxi_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-13-37"><span class="w">    </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nuxi_type</span><span class="p">,</span>
+</span><span id="__span-13-38"><span class="w">    </span><span class="n">is_little</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-13-39"><span class="w">    </span><span class="n">is_big</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-13-40"><span class="p">};</span>
+</span><span id="__span-13-41"><span class="cp">#endif</span>
+</span></code></pre></div></td></tr></table></div>
+<p>以小端部分的判断为例，宏定义分为以下两种类型。</p>
+<p>和字节序有关的的宏：
+<div class="language-shell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1">BYTE_ORDER
+</span><span id="__span-14-2">__BYTE_ORDER
+</span><span id="__span-14-3">LITTLE_ENDIAN
+</span><span id="__span-14-4">__LITTLE_ENDIAN
+</span></code></pre></div></td></tr></table></div></p>
+<p>和处理器架构有关的编译器预定义宏：
+<div class="language-shell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1">__i386__<span class="w">    </span><span class="c1"># x86 架构（32位）</span>
+</span><span id="__span-15-2">
+</span><span id="__span-15-3">__amd64<span class="w">     </span><span class="c1"># x86_64 架构（64位）</span>
+</span><span id="__span-15-4">__amd64__<span class="w">   </span><span class="c1"># x86_64 架构（64位）</span>
+</span><span id="__span-15-5">
+</span><span id="__span-15-6">__x86_64<span class="w">    </span><span class="c1"># x86_64 架构（64位）</span>
+</span><span id="__span-15-7">__x86_64__<span class="w">  </span><span class="c1"># x86_64 架构（64位）</span>
+</span><span id="__span-15-8">
+</span><span id="__span-15-9">__alpha__<span class="w">   </span><span class="c1"># Alpha 处理器架构  </span>
+</span><span id="__span-15-10">_M_ALPHA<span class="w">    </span><span class="c1"># Alpha 处理器架构</span>
+</span><span id="__span-15-11">
+</span><span id="__span-15-12">__ia64<span class="w">      </span><span class="c1"># Itanium 64 位架构</span>
+</span><span id="__span-15-13">__ia64__<span class="w">    </span><span class="c1"># Itanium 64 位架构</span>
+</span><span id="__span-15-14">_M_IA64<span class="w">     </span><span class="c1"># Itanium 64 位架构</span>
+</span><span id="__span-15-15">
+</span><span id="__span-15-16">_M_IX86<span class="w">     </span><span class="c1"># MSVC 编译器下的 x86 宏，表示 32 位 x86 处理器。</span>
+</span><span id="__span-15-17">
+</span><span id="__span-15-18">_M_AMD64<span class="w">    </span><span class="c1"># MSVC 编译器下的 64 位处理器宏</span>
+</span><span id="__span-15-19">_M_X64<span class="w">      </span><span class="c1"># MSVC 编译器下的 64 位处理器宏</span>
+</span></code></pre></div></td></tr></table></div></p>
+<p>其中关于处理器架构的宏都是由编译器预定义的。和字节序有关的宏均来自头文件 <code>&lt;endian.h&gt;</code>。</p>
+<div class="admonition note">
+<p class="admonition-title">编译器预定义宏</p>
+<p>编译器的预定义宏主要用于帮助程序根据编译时环境来进行条件编译，从而编写跨平台、跨架构或与特定编译器功能兼容的代码。  </p>
+<p>可以通过如下指令查看编译器预定义的宏：</p>
+<div class="language-shell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1">touch<span class="w"> </span>foo.h
+</span><span id="__span-16-2">cpp<span class="w"> </span>-dM<span class="w"> </span>-E<span class="w"> </span>foo.h
+</span></code></pre></div></td></tr></table></div>
+<p>其中 <strong>-E</strong> 意为执行到预处理完成结束，<strong>-dM</strong> 意为显示所有的宏定义（包括预定义宏）。    </p>
+<p>gcc 手册中也对 <strong>-dM</strong> 选项显示所有宏定义的功能做出了解释</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1">-dM
+</span><span id="__span-17-2">
+</span><span id="__span-17-3">Instead of the normal output, generate a list of ‘#define’ directives for 
+</span><span id="__span-17-4">all the macros defined during the execution of the preprocessor, including predefined macros. 
+</span><span id="__span-17-5">This gives you a way of finding out what is predefined in your version of the preprocessor. 
+</span><span id="__span-17-6">
+</span><span id="__span-17-7">Assuming you have no file foo.h, the command
+</span><span id="__span-17-8">touch foo.h; cpp -dM foo.h
+</span><span id="__span-17-9">shows all the predefined macros.
+</span></code></pre></div></td></tr></table></div>
+<p>其中 <strong>-d</strong> 意为启用特定编译器阶段的 <strong>转存储（dump）</strong> 功能，后面的所接的字母意为转存储的具体内容，<strong>M</strong> 表示 <strong>输出宏定义（macro）</strong>，包括编译器预定义的和用户定义的，并且是直接在预处理阶段完成的。实际上，<strong>-dM</strong> 选项必须配合 <strong>-E</strong> 使用，以确保它只进行预处理，而不进入后续的编译阶段。</p>
+</div>
+<p>我所使用的 gcc version 14.2.1 20240805 编译器预定义了以下两个宏，但是该库并没有利用这两个宏作为判断依据。
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-1"><span class="cp">#define __ORDER_LITTLE_ENDIAN__ 1234</span>
+</span><span id="__span-18-2"><span class="cp">#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__</span>
+</span></code></pre></div></td></tr></table></div></p>
+<p>适配多种类型的大小端互转模板函数 <code class="language-cpp highlight"><span class="n">T</span><span class="w"> </span><span class="n">swap</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">out</span><span class="p">)</span></code> 是该库的核心。在该函数的开端，作者定义了一个静态联合体（union），利用联合体和静态局部变量的特性，实现了在运行时验证字节序推测结论是否正确。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">swap</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">out</span><span class="p">)</span>
+</span><span id="__span-19-2"><span class="p">{</span>
+</span><span id="__span-19-3"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">autodetect</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-4"><span class="hll"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">word</span><span class="p">;</span>
+</span></span><span id="__span-19-5"><span class="hll"><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">byte</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)];</span>
+</span></span><span id="__span-19-6"><span class="w">        </span><span class="n">autodetect</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">word</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-19-7"><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-19-8"><span class="w">            </span><span class="n">assert</span>
+</span><span id="__span-19-9"><span class="w">            </span><span class="p">(</span>
+</span><span id="__span-19-10"><span class="w">                </span><span class="p">(</span>
+</span><span id="__span-19-11"><span class="w">                    </span><span class="s">&quot;&lt;giant/giant.hpp&gt; says: wrong endianness detected!&quot;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-19-12"><span class="w">                    </span><span class="p">(</span><span class="o">!</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_big</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_little</span><span class="p">)</span>
+</span><span id="__span-19-13"><span class="w">                </span><span class="p">)</span>
+</span><span id="__span-19-14"><span class="w">            </span><span class="p">);</span>
+</span><span id="__span-19-15"><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-19-16"><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">_</span><span class="p">;</span>
+</span><span id="__span-19-17">
+</span><span id="__span-19-18"><span class="w">    </span><span class="c1">// ...</span>
+</span><span id="__span-19-19"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>联合体中有一个整型变量，和一个字符数组，数组大小为 <code class="language-cpp highlight"><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span></code>，用于按字节查看整型变量。 <code class="language-py highlight"><span class="n">static</span></code> 关键字表示联合体的实例是静态局部变量，只会在程序的生命周期内被初始化一次，并在多次调用 <code class="language-cpp highlight"><span class="n">T</span><span class="w"> </span><span class="n">swap</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">out</span><span class="p">)</span></code> 函数时共享。</p>
+<p>联合体的构造函数中利用初始化列表将 <code class="language-py highlight"><span class="n">word</span></code> 变量初始化为 <code>1</code>。对于一个int类型的值 <code>1</code>，它的二进制表示是 <code class="language-py highlight"><span class="mi">0</span><span class="n">x</span> <span class="mi">00</span> <span class="mi">00</span> <span class="mi">00</span> <span class="mi">01</span></code>。</p>
+<p>随后在构造函数中通过断言验证系统字节序，这里发生了两件值得关注的事情。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-20-1"><span class="n">assert</span>
+</span><span id="__span-20-2"><span class="p">(</span>
+</span><span id="__span-20-3"><span class="w">    </span><span class="p">(</span>
+</span><span id="__span-20-4"><span class="hll"><span class="w">        </span><span class="s">&quot;&lt;giant/giant.hpp&gt; says: wrong endianness detected!&quot;</span><span class="p">,</span><span class="w"> </span>
+</span></span><span id="__span-20-5"><span class="w">        </span><span class="p">(</span><span class="o">!</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_big</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_little</span><span class="p">)</span>
+</span><span id="__span-20-6"><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-20-7"><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+<ul>
+<li><code class="language-py highlight"><span class="k">assert</span></code> 宏实际上只接受一个参数，但是作者利用逗号运算符只返回最后一个逗号后面的运算结果的特性，使得如果断言触发，既能够打印逗号前的出错误提示信息，又能够判断逗号后的断言触发条件。</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">逗号运算符</p>
+<p>逗号运算符（,）用于顺序执行多个表达式，并返回最后一个表达式的值。它可以在许多场景下使用，比如在循环中，或在声明和初始化多个变量时。
+当使用逗号运算符时，多个表达式从左到右依次执行，但仅返回最后一个表达式的值。
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-21-1"><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</span><span id="__span-21-2"><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+</span><span id="__span-21-3"><span class="c1">// a = 3, b = 5, result = 5</span>
+</span></code></pre></div></td></tr></table></div>
+在这个例子中：a += 2 先执行，将 a 的值变为 3。然后执行 b += 3，将 b 的值变为 5。最后，返回 b += 3 的结果，即 5，并将其赋值给 result</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">assert 与 NDEBUG 宏</p>
+<p>由于 <code class="language-py highlight"><span class="k">assert</span></code> 断言仅在 <code class="language-py highlight"><span class="n">NDEBUG</span></code> 没有定义时有效，当代码以 <code class="language-py highlight"><span class="n">CMAKE_BUILD_TYPE</span></code> 为 <code class="language-py highlight"><span class="n">Release</span></code> 时编译时，不会定义 <code class="language-py highlight"><span class="n">NDEBUG</span></code> 宏，也就是说 <code class="language-py highlight"><span class="n">Release</span></code> 模式下所有 <code class="language-py highlight"><span class="k">assert</span></code> 断言会失效。</p>
+<p>为了解决这个问题，通常有以下几种方法可供参考：</p>
+<p>方法一：直接使用 <code class="language-py highlight"><span class="k">if</span></code> 进行显式检查
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-22-1"><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">!</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_big</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_little</span><span class="p">))</span><span class="w"> </span>
+</span><span id="__span-22-2"><span class="p">{</span>
+</span><span id="__span-22-3"><span class="w">    </span><span class="c1">// 字节序正确</span>
+</span><span id="__span-22-4"><span class="p">}</span><span class="w"> </span>
+</span><span id="__span-22-5"><span class="k">else</span><span class="w"> </span>
+</span><span id="__span-22-6"><span class="p">{</span>
+</span><span id="__span-22-7"><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;&lt;giant/giant.hpp&gt; says: wrong endianness detected!&quot;</span><span class="p">);</span>
+</span><span id="__span-22-8"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+这种处理方式没有宏和条件编译相关的复杂性，代码更加清晰可控。但是如果有大量的断言，所有断言都转换成 if 语句会增加代码冗余，并且显得冗长。</p>
+<p>方法二：使用自定义的 <code class="language-py highlight"><span class="n">MyAssert</span></code> 函数
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-23-1"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+</span><span id="__span-23-2"><span class="kt">void</span><span class="w"> </span><span class="n">MyAssert</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">condition</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-3"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">condition</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-4"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span id="__span-23-5"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">abort</span><span class="p">();</span>
+</span><span id="__span-23-6"><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-23-7"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div></p>
+<p>方法三：在 <code class="language-py highlight"><span class="n">Release</span></code> 模式下仍然开启 <code class="language-py highlight"><span class="n">NDEBUG</span></code> 宏</p>
+<div class="language-shell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-24-1">set<span class="o">(</span>CMAKE_CXX_FLAGS_RELEASE<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CMAKE_CXX_FLAGS_RELEASE</span><span class="si">}</span><span class="s2"> -UNDEBUG&quot;</span><span class="o">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-25-1"><span class="n">assert</span>
+</span><span id="__span-25-2"><span class="p">(</span>
+</span><span id="__span-25-3"><span class="w">    </span><span class="p">(</span>
+</span><span id="__span-25-4"><span class="w">        </span><span class="s">&quot;&lt;giant/giant.hpp&gt; says: wrong endianness detected!&quot;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-25-5"><span class="hll"><span class="w">        </span><span class="p">(</span><span class="o">!</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_big</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_little</span><span class="p">)</span>
+</span></span><span id="__span-25-6"><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-25-7"><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+<ul>
+<li>断言的后半部分是首先判断了 <code class="language-py highlight"><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></code>（<code class="language-py highlight"><span class="n">word</span></code> 的第一个字节）。如果系统是小端序，那么 <code class="language-py highlight"><span class="mi">1</span></code> 的最低有效字节会存储在最低地址，所以 <code class="language-py highlight"><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span></code>。如果是大端序，最高有效字节会在最低地址，所以 <code class="language-py highlight"><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span></code>。再通过和最前面通过宏定义得到的结论对比，就能验证此前大小端结论推测是否正确。一旦验证失败，就会触发断言。</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">联合体中访问非活动成员的例外情况</p>
+<p>C++ 标准中，联合体中的<strong>活动成员</strong>是最近一次写入的成员。当联合体的某个成员被赋值时，这个成员就成为<strong>活动成员</strong>。如果在某一时刻访问了不是活动成员的其他成员，将是未定义行为。但是这里构造函数只指定了成员 <code class="language-py highlight"><span class="n">word</span></code> 的值，但是却访问了非活动成员 <code class="language-py highlight"><span class="n">char</span></code> 数组，这是未定义行为吗？</p>
+<p>虽然 C++ 对联合体跨成员访问要求严格，但是有一个<strong>例外情况</strong>即当其他成员是<strong>布局兼容类型（layout-compatible types）</strong>时允许访问非活动成员，常见的布局兼容情况包含同一基本类型的不同别名、字节数组与任何类型、标准布局类型。在这里属于第二类情况，即字节数组与任何类型：<code class="language-py highlight"><span class="n">char</span><span class="p">[]</span></code> 或 <code class="language-py highlight"><span class="n">unsigned</span> <span class="n">char</span><span class="p">[]</span></code> 可以安全地读取和写入任何类型的内存。这是因为 C++ 标准允许通过 <code class="language-py highlight"><span class="n">char</span></code> 或 <code class="language-py highlight"><span class="n">unsigned</span> <span class="n">char</span></code> 访问任何对象的底层字节表示。这同样也是一种<strong>类型双关</strong>。</p>
+</div>
+<p>最后进入正题：该库的大小端互转模板函数</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-26-1"><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">swap</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">out</span><span class="p">)</span>
+</span><span id="__span-26-2"><span class="p">{</span>
+</span><span id="__span-26-3"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">autodetect</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-4"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">word</span><span class="p">;</span>
+</span><span id="__span-26-5"><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">byte</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)];</span>
+</span><span id="__span-26-6"><span class="w">        </span><span class="n">autodetect</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">word</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-26-7"><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-26-8"><span class="w">            </span><span class="n">assert</span><span class="p">(</span>
+</span><span id="__span-26-9"><span class="w">                </span><span class="p">(</span><span class="s">&quot;&lt;giant/giant.hpp&gt; says: wrong endianness detected!&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_big</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">byte</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_little</span><span class="p">)));</span>
+</span><span id="__span-26-10"><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-26-11"><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">_</span><span class="p">;</span>
+</span><span id="__span-26-12">
+</span><span id="__span-26-13"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">is_pod</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-26-14"><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-26-15"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">out</span><span class="p">;</span>
+</span><span id="__span-26-16"><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-26-17">
+</span><span id="__span-26-18"><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+</span><span id="__span-26-19">
+</span><span id="__span-26-20"><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+</span><span id="__span-26-21"><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-26-22"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-26-23"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-26-24"><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-26-25"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+</span><span id="__span-26-26"><span class="w">        </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span>
+</span><span id="__span-26-27"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span id="__span-26-28"><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-26-29"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">4</span><span class="p">:</span>
+</span><span id="__span-26-30"><span class="w">        </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span>
+</span><span id="__span-26-31"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span><span id="__span-26-32"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+</span><span id="__span-26-33"><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-26-34"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">8</span><span class="p">:</span>
+</span><span id="__span-26-35"><span class="w">        </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span>
+</span><span id="__span-26-36"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">7</span><span class="p">]);</span>
+</span><span id="__span-26-37"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">6</span><span class="p">]);</span>
+</span><span id="__span-26-38"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">5</span><span class="p">]);</span>
+</span><span id="__span-26-39"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">4</span><span class="p">]);</span>
+</span><span id="__span-26-40"><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-26-41"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">16</span><span class="p">:</span>
+</span><span id="__span-26-42"><span class="w">        </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span>
+</span><span id="__span-26-43"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">15</span><span class="p">]);</span>
+</span><span id="__span-26-44"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">14</span><span class="p">]);</span>
+</span><span id="__span-26-45"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">13</span><span class="p">]);</span>
+</span><span id="__span-26-46"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">12</span><span class="p">]);</span>
+</span><span id="__span-26-47"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">11</span><span class="p">]);</span>
+</span><span id="__span-26-48"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">10</span><span class="p">]);</span>
+</span><span id="__span-26-49"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">9</span><span class="p">]);</span>
+</span><span id="__span-26-50"><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="w"> </span><span class="n">ptr</span><span class="p">[</span><span class="mi">8</span><span class="p">]);</span>
+</span><span id="__span-26-51"><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-26-52"><span class="w">    </span><span class="k">default</span><span class="o">:</span>
+</span><span id="__span-26-53"><span class="w">        </span><span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="s">&quot;&lt;giant/giant.hpp&gt; says: POD type bigger than 256 bits (?)&quot;</span><span class="p">);</span>
+</span><span id="__span-26-54"><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+</span><span id="__span-26-55"><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-26-56">
+</span><span id="__span-26-57"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">out</span><span class="p">;</span>
+</span><span id="__span-26-58"><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>该库中没有为各类字节长度不同的类型分别编写函数，而是利用模板函数统一处理，再利用 <code class="language-cpp highlight"><span class="k">sizeof</span></code> 操作符判断长度并处理。</p>
+<p>在判断传入的类型占用的字节数后，作者使用了上文中提到的类型双关中不违反严格别名规则的例外情况：使用 <code class="language-cpp highlight"><span class="kt">char</span><span class="w"> </span><span class="o">*</span></code> 类型重新解释，然后使用 <code class="language-cpp highlight"><span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">()</span></code> 完成字节序列交换。</p>
+<h2 id="_6">参考</h2>
+<ul>
+<li>
+<p><a href="https://github.com/cplusplus/draft/tree/main/papers" title="draft/papers at main · cplusplus/draft">Draft C++17 standard is freely available here</a></p>
+</li>
+<li>
+<p><a href="http://eel.is/c++draft/" title="Draft C++ Standard: Contents">Latest Draft C++ Standard</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/shafik/848ae25ee209f698763cffee272a58f8" title="What is Strict Aliasing and Why do we Care?">What is Strict Aliasing and Why do we Care?</a></p>
+</li>
+<li>
+<p><a href="https://gcc.gnu.org/onlinedocs/gcc-14.2.0/gcc/Preprocessor-Options.html" title="Preprocessor Options (Using the GNU Compiler Collection (GCC))">Preprocessor Options (Using the GNU Compiler Collection (GCC))</a></p>
+</li>
+<li>
+<p><a href="https://github.com/r-lyeh-archived/giant" title="r-lyeh-archived/giant: :moyai: Giant is a tiny C++11 library to handle little/big endianness.">Giant: A tiny C++11 library to handle little/big endianness.</a></p>
+</li>
+</ul>
+<hr />
+<p>创建于：<code>2024-09-23</code></p>
+<p>编辑于：<code>2024-09-23</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "search.highlight"], "search": "../../../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+    
+  </body>
+</html>
